@@ -12,8 +12,8 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('hello-world')
-  getHelloWorld(): string {
-    return 'Hello World! from NestJS';
-  }
+  // @Get('hello-world')
+  // getHelloWorld(): string {
+  //   return 'Hello World! from NestJS';
+  // }
 }
