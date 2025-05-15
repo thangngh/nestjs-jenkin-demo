@@ -40,8 +40,23 @@ pipeline {
         stage ('Check Conflict') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                    def targetBranch = "main"
 
+                    withCredentials([usernamePassword(credentialsId: 'GITHUB_CRED', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                        sh "git fetch https://${GIT_USER}:${GIT_TOKEN}@github.com/thangngh/nestjs-jenkin-demo.git ${targetBranch}:${targetBranch}"
+
+                        def mergeStatus = sh(
+                          script: "git merge-tree \$(git merge-base HEAD ${targetBranch}) HEAD ${targetBranch}",
+                          returnStdout: true
+                        )
+
+                        if (mergeStatus.contains('<<<<<<< ')) {
+                          echo "⚠️ Conflicts detected in pull request!"
+                          currentBuild.result = 'UNSTABLE'
+                          error "Conflicts detected in pull request. Please resolve before merging."
+                        } else {
+                            echo "✅ No conflicts detected."
+                        }
                     }
                 }
             }
@@ -88,7 +103,8 @@ pipeline {
                 sshagent(credentials: ['df464007-da47-414c-907d-7c46364d9075']) {
                     sh  """
                             ssh -o StrictHostKeyChecking=no root@192.168.20.250 \\
-                            "ls -la"
+                            "ls -la
+                            "
                         """
                 }
             }
@@ -120,7 +136,9 @@ void updateGitHubCommitStatus(String state, String message) {
         contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'Jenkins PR Validation'],
         errorHandlers: [[$class: 'ChangingBuildStatusErrorHandler', result: 'UNSTABLE']],
         statusResultSource: [$class: 'ConditionalStatusResultSource', results: [
-            [$class: 'AnyBuildResult', message: message, state: state]
+            [$class: 'AnyBuildResult', message: message, state: state],
+            [$class: 'BetterThanOrEqualBuildResult', result: 'SUCCESS', state: 'SUCCESS', message: build.description],
+            [$class: 'BetterThanOrEqualBuildResult', result: 'FAILURE', state: 'FAILURE', message: build.description],
         ]]
     ])
 }
