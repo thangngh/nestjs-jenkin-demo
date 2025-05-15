@@ -7,7 +7,7 @@ pipeline {
         disableConcurrentBuilds()
     }
 
-    trigger {
+    triggers {
         githubPush()
     }
 
@@ -21,7 +21,13 @@ pipeline {
             }
         }
 
-        stage ('Validation PR') {}
+        stage ('Validation PR') {
+            steps {
+                script {
+                    echo 'Validating PR...'
+                }
+            }
+        }
 
         stage ('Checkout') {
             steps {
