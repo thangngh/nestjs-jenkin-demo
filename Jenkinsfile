@@ -139,8 +139,7 @@ void updateGitHubCommitStatus(String state, String message) {
         contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'Jenkins PR Validation'],
         errorHandlers: [[$class: 'ChangingBuildStatusErrorHandler', result: 'UNSTABLE']],
         statusResultSource: [$class: 'ConditionalStatusResultSource', results: [
-            [$class: 'AnyBuildResult', message: message, state: state],
-            [$class: 'BetterThanOrEqualBuildResult', result: 'FAILURE', state: 'FAILURE', message: build.description],
-        ]]
+            [$class: 'AnyBuildResult', message: message, state: state]
+        ]],
     ])
 }
