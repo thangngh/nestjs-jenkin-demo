@@ -103,7 +103,9 @@ pipeline {
                 sshagent(credentials: ['df464007-da47-414c-907d-7c46364d9075']) {
                     sh  """
                             ssh -o StrictHostKeyChecking=no root@192.168.20.250 \\
-                            "ls -la
+                            "ls -la && \\
+                            cd nestjs-jenkin-demo && \\
+                            git pull origin
                             "
                         """
                 }
