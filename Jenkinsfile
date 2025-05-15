@@ -115,14 +115,15 @@ pipeline {
 
     post {
         success {
+            echo "Pull request validation completed successfully!"
             updateGitHubCommitStatus('SUCCESS', 'All checks passed')
         }
-
         unstable {
+            echo "Pull request validation completed with warnings!"
             updateGitHubCommitStatus('UNSTABLE', 'Completed with warnings')
         }
-
         failure {
+            echo "Pull request validation failed!"
             updateGitHubCommitStatus('FAILURE', 'Build failed')
         }
 
@@ -139,7 +140,6 @@ void updateGitHubCommitStatus(String state, String message) {
         errorHandlers: [[$class: 'ChangingBuildStatusErrorHandler', result: 'UNSTABLE']],
         statusResultSource: [$class: 'ConditionalStatusResultSource', results: [
             [$class: 'AnyBuildResult', message: message, state: state],
-            [$class: 'BetterThanOrEqualBuildResult', result: 'SUCCESS', state: 'SUCCESS', message: build.description],
             [$class: 'BetterThanOrEqualBuildResult', result: 'FAILURE', state: 'FAILURE', message: build.description],
         ]]
     ])
