@@ -13,7 +13,7 @@ pipeline {
 
     stages {
 
-        stage ('Start') {
+        stage('Start') { 
             steps {
                 script {
                     updateGitHubCommitStatus('PENDING', 'Jenkins is validating the pull request...')
@@ -21,7 +21,7 @@ pipeline {
             }
         }
 
-        stage ('Validation PR') {
+        stage('Validation PR') {
             steps {
                 script {
                     echo 'Validating PR...'
@@ -29,7 +29,7 @@ pipeline {
             }
         }
 
-        stage ('Checkout') {
+        stage('Checkout') {
             steps {
                 script {
                     checkout scm
@@ -37,7 +37,7 @@ pipeline {
             }
         }
 
-        stage ('Check Conflict') {
+        stage('Check Conflict') {
             steps {
                 script {
                     def targetBranch = "main"
@@ -62,7 +62,7 @@ pipeline {
             }
         }
 
-        stage ('Build') {
+        stage('Build') {
             when {
                 // expression { return env.BRANCH_NAME == 'main' }
                 branch 'main'
@@ -74,7 +74,7 @@ pipeline {
             }
         }
 
-        stage ('Test') {
+        stage('Test') {
             steps {
                 script {
                     echo 'Running tests...'
@@ -82,7 +82,7 @@ pipeline {
             }
         }
 
-        stage ('Deploy production') {
+        stage('Deploy production') {
             when {
                 // expression { return env.BRANCH_NAME == 'main' }
                 branch 'main'
@@ -94,7 +94,7 @@ pipeline {
             }
         }
 
-        stage ('SSH agent') {
+        stage('SSH agent') {
             when {
                 // expression { return env.BRANCH_NAME == 'main' }
                 branch 'main'
