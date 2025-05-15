@@ -13,7 +13,7 @@ pipeline {
 
     stages {
 
-        stage('Start') { 
+        stage ('Start') {
             steps {
                 script {
                     updateGitHubCommitStatus('PENDING', 'Jenkins is validating the pull request...')
@@ -21,15 +21,15 @@ pipeline {
             }
         }
 
-        stage('Validation PR') {
+        stage ('Validation PR') {
             steps {
                 script {
-                    echo 'Validating PR...' 
+                    echo 'Validating PR...'
                 }
             }
         }
 
-        stage('Checkout') {
+        stage ('Checkout') {
             steps {
                 script {
                     checkout scm
@@ -37,7 +37,7 @@ pipeline {
             }
         }
 
-        stage('Check Conflict') {
+        stage ('Check Conflict') {
             steps {
                 script {
                     def targetBranch = "main"
@@ -62,7 +62,7 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage ('Build') {
             when {
                 // expression { return env.BRANCH_NAME == 'main' }
                 branch 'main'
@@ -74,7 +74,7 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage ('Test') {
             steps {
                 script {
                     echo 'Running tests...'
@@ -82,7 +82,7 @@ pipeline {
             }
         }
 
-        stage('Deploy production') {
+        stage ('Deploy production') {
             when {
                 // expression { return env.BRANCH_NAME == 'main' }
                 branch 'main'
@@ -94,7 +94,7 @@ pipeline {
             }
         }
 
-        stage('SSH agent') {
+        stage ('SSH agent') {
             when {
                 // expression { return env.BRANCH_NAME == 'main' }
                 branch 'main'
@@ -115,14 +115,15 @@ pipeline {
 
     post {
         success {
+            echo "Pull request validation completed successfully!"
             updateGitHubCommitStatus('SUCCESS', 'All checks passed')
         }
-
         unstable {
+            echo "Pull request validation completed with warnings!"
             updateGitHubCommitStatus('UNSTABLE', 'Completed with warnings')
         }
-
         failure {
+            echo "Pull request validation failed!"
             updateGitHubCommitStatus('FAILURE', 'Build failed')
         }
 
@@ -138,9 +139,7 @@ void updateGitHubCommitStatus(String state, String message) {
         contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'Jenkins PR Validation'],
         errorHandlers: [[$class: 'ChangingBuildStatusErrorHandler', result: 'UNSTABLE']],
         statusResultSource: [$class: 'ConditionalStatusResultSource', results: [
-            [$class: 'AnyBuildResult', message: message, state: state],
-            [$class: 'BetterThanOrEqualBuildResult', result: 'SUCCESS', state: 'SUCCESS', message: build.description],
-            [$class: 'BetterThanOrEqualBuildResult', result: 'FAILURE', state: 'FAILURE', message: build.description],
-        ]]
+            [$class: 'AnyBuildResult', message: message, state: state]
+        ]],
     ])
 }
